@@ -1,0 +1,63 @@
+Second, unity as server and Matlab as client
+
+
+//Unity C# code
+using UnityEngine;
+using System.Collections;
+using System.Net;
+using System.Net.Sockets;
+using System.Linq;
+using System;
+using System.IO;
+using System.Text;
+public class readSocket : MonoBehaviour {
+      // Use this for initialization
+      TcpListener listener;
+      String msg;
+      void Start () {
+          listener=new TcpListener (55001);
+          listener.Start ();
+          print ("is listening");
+      }
+      // Update is called once per frame
+      void Update () {
+          if (!listener.Pending ())
+          {
+          } 
+          else 
+          {
+              print ("socket comes");
+              TcpClient client = listener.AcceptTcpClient ();
+              NetworkStream ns = client.GetStream ();
+              StreamReader reader = new StreamReader (ns);
+              msg = reader.ReadToEnd();
+              print (msg);
+          }
+      }
+  }
+
+
+//ivan camponogara on 2 Jun 2019
+//1) Your unity C# code works only if you name it "readSocket" (as specified at line 10 of the code before the "MonoBehaviour" command.
+//2) In the TcpListener command (line 20 of the code) within the parenthesis you have to specify the ip number in this way: IPAddress.Parse("127.0.0.1"). 
+//Then you have to write the server port number (55001) separated by a comma.
+ listener = new TcpListener(IPAddress.Parse("127.0.0.1"), 55001);
+//3) The C# code in unity works only once you drag the C# file on the top the "Main Camera" file that you can find in the "Sample scene" file.
+
+
+
+
+//Matlab code
+clc
+clear all
+tcpipClient = tcpip('127.0.0.1',55001,'NetworkRole','Client');
+set(tcpipClient,'Timeout',30);
+fopen(tcpipClient);
+a='yah!! we could make it';
+fwrite(tcpipClient,a);
+fclose(tcpipClient);
+
+//in each implementation the server should runs first before the client otherwise you will get the below error
+//Connection refused:in Matlab or remote machine actively refuse the connection in unity
+
+
